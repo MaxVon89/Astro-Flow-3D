@@ -25,13 +25,15 @@ def run_pipeline(
     """
 
     fits_path = Path(fits_path)
-
     output_root = Path(output_root)
 
     tile_dir = output_root / "tiles"
     tile_dir.mkdir(parents=True, exist_ok=True)
 
     csv_path = output_root / "index.csv"
+
+    # Use FITS filename (without extension) as tile prefix
+    source_name = fits_path.stem
 
     print("=" * 60)
     print("ASTRO-FLOW PREPROCESSING PIPELINE")
@@ -57,6 +59,7 @@ def run_pipeline(
     total_tiles = generate_tiles(
         image=image,
         output_dir=tile_dir,
+        source_name=source_name,
         tile_size=tile_size,
         stride=stride,
     )
