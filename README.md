@@ -1,166 +1,76 @@
 # Astro-Flow-3D
 
-Astro-Flow-3D is a physics-aware deep learning framework for analyzing and reconstructing galaxy morphology from James Webb Space Telescope (JWST) deep-field observations.
+Astro-Flow-3D is a research framework for learning physically meaningful representations of galaxy morphology from James Webb Space Telescope (JWST) observations. The long-term objective is to develop a physics-aware deep learning system capable of probabilistic three-dimensional morpho-spectral reconstruction of galaxies from two-dimensional multi-band imaging.
 
-The project aims to build a complete end-to-end pipeline that transforms calibrated JWST observations into machine-learning-ready datasets for galaxy detection, segmentation, representation learning, and future probabilistic 3D morpho-spectral reconstruction.
-
----
-
-# Vision
-
-Modern JWST surveys such as CEERS, JADES, PRIMER, and COSMOS-Web are revolutionizing observational astronomy by providing unprecedented views of the distant universe.
-
-Astro-Flow-3D combines astronomical data processing, computer vision, and deep learning to learn physically meaningful representations of galaxy morphology while maintaining a reproducible and scalable scientific workflow.
+The project combines astronomical image processing, modern computer vision, and deep learning within a reproducible software framework designed for large-scale JWST surveys.
 
 ---
 
-# Current Status
+## Scientific Motivation
 
-## Stage 1 — Data Engineering & Preprocessing (≈90% Complete)
+The James Webb Space Telescope has fundamentally changed observational astronomy by revealing unprecedented detail in distant galaxies across multiple infrared wavelengths. Surveys such as CEERS, JADES, PRIMER, and COSMOS-Web now provide datasets that contain millions of galaxies spanning a broad range of evolutionary stages.
 
-Current focus:
+Despite these advances, most current computer vision pipelines treat astronomical observations as conventional natural images, often ignoring the physical structure and observational characteristics unique to astrophysical data.
 
-- JWST data discovery
-- FITS inspection
-- Image preprocessing
-- Tile generation
-- Metadata extraction
-- Dataset engineering
-- Pipeline orchestration
+Astro-Flow-3D explores an alternative direction by developing learning algorithms that preserve physically meaningful information throughout the processing pipeline while remaining scalable to modern astronomical surveys.
 
 ---
 
-# Completed Milestones
+## Research Objectives
 
-## Infrastructure
+The project is organized around three primary goals.
 
-- [x] Repository bootstrap
-- [x] Docker development environment
-- [x] GPU-enabled PyTorch container
-- [x] GitHub Actions CI/CD
-- [x] GitHub Container Registry (GHCR)
-- [x] Feature-branch workflow
+First, establish a reproducible data engineering pipeline capable of transforming calibrated JWST observations into machine-learning-ready datasets.
 
-## JWST Data Pipeline
+Second, investigate deep learning architectures for galaxy detection, segmentation, morphology representation learning, and multi-task prediction.
 
-- [x] CEERS observation discovery
-- [x] MAST query pipeline
-- [x] FITS product download
-- [x] FITS inspection
-- [x] FITS visualization
-- [x] Scientific image analysis
-
-## Preprocessing Pipeline
-
-- [x] Percentile-based normalization
-- [x] Tile generation
-- [x] Tile metadata extraction
-- [x] Tile quality scoring
-- [x] Statistics generation
-- [x] CSV dataset indexing
-- [x] Modular preprocessing pipeline
-- [x] PyTorch Dataset abstraction
+Finally, develop a physics-aware probabilistic framework capable of reconstructing three-dimensional morpho-spectral galaxy representations from two-dimensional observations.
 
 ---
 
-# Objectives
+## Current Progress
 
-## Data Engineering
+The current development effort focuses on the data engineering foundation required for subsequent machine learning experiments.
 
-- Download JWST observations
-- Multi-band image alignment
-- Image preprocessing
-- Tile generation
-- Metadata generation
-- Dataset indexing
-- PyTorch dataset creation
+The preprocessing pipeline currently supports:
 
-## Computer Vision
+- discovery and retrieval of JWST observations from MAST
+- FITS inspection and scientific visualization
+- percentile-based image normalization
+- tile generation for large astronomical images
+- statistical characterization of image tiles
+- metadata extraction and dataset indexing
+- PyTorch dataset generation
+- reconstruction-based validation of preprocessing correctness
 
-- Baseline U-Net segmentation
-- Attention U-Net
-- Swin Transformer
-- SegFormer
-- Mask2Former
-
-## Scientific Modeling
-
-- Galaxy morphology learning
-- Multi-task learning
-- Physics-aware auxiliary heads
-- Probabilistic morpho-spectral reconstruction
-- 3D scene understanding
+The reconstruction stage verifies that tiled observations can be reconstructed without introducing numerical artifacts, ensuring that downstream learning algorithms receive information-preserving inputs.
 
 ---
 
-# Repository Structure
+## Methodology
 
-```text
-Astro-Flow-3D/
+The current preprocessing workflow follows the sequence
 
-├── src/
-│   ├── data/
-│   │   ├── fits_loader.py
-│   │   ├── preprocess.py
-│   │   ├── tile_generator.py
-│   │   ├── statistics.py
-│   │   ├── pipeline.py
-│   │   └── jwst_dataset.py
-│   │
-│   ├── models/
-│   ├── training/
-│   └── utils/
-│
-├── scripts/
-│   └── data/
-│       ├── check_environment.py
-│       ├── check_tiles.py
-│       ├── dataset_report.py
-│       ├── download_ceers.py
-│       ├── download_first_fits.py
-│       ├── inspect_fits.py
-│       ├── visualize_fits.py
-│       └── visualize_tile_grid.py
-│
-├── configs/
-├── docker/
-├── downloads/
-├── notebooks/
-├── .github/
-│   └── workflows/
-│
-├── README.md
-├── requirements.txt
-└── LICENSE
 ```
-
----
-
-# Data Pipeline
-
-```text
-JWST Observations
+JWST Observation
         │
         ▼
-MAST Discovery
+MAST Archive
         │
         ▼
-FITS Download
+Calibrated FITS Image
         │
         ▼
-FITS Inspection
-        │
-        ▼
-Normalization
+Scientific Preprocessing
         │
         ▼
 Tile Generation
         │
         ▼
-Statistics & Metadata
+Statistical Characterization
         │
         ▼
-Dataset Index
+Metadata Indexing
         │
         ▼
 PyTorch Dataset
@@ -169,102 +79,61 @@ PyTorch Dataset
 Deep Learning Models
 ```
 
+The modular design allows each processing stage to be developed, tested, and validated independently while maintaining reproducibility across large observational datasets.
+
 ---
 
-# Technology Stack
+## Current Repository
 
-- Python
+```
+src/
+    data/
+    models/
+    training/
+    utils/
+
+scripts/
+    data/
+
+configs/
+docker/
+downloads/
+notebooks/
+```
+
+Reusable functionality is implemented within `src/`, while executable workflows and experiments are maintained under `scripts/`.
+
+---
+
+## Research Roadmap
+
+The project is being developed incrementally.
+
+The current stage establishes the data engineering pipeline and preprocessing framework.
+
+The next stage introduces dataset intelligence through multi-band alignment, multi-channel tensor generation, dataset versioning, augmentation strategies, and train-validation-test partitioning.
+
+Subsequent stages investigate baseline convolutional architectures, transformer-based segmentation models, morphology representation learning, and ultimately probabilistic three-dimensional morpho-spectral reconstruction.
+
+---
+
+## Technologies
+
+Astro-Flow-3D is implemented primarily in Python using
+
 - PyTorch
 - NumPy
 - Pandas
 - Astropy
 - Astroquery
 - Matplotlib
-- Docker
-- GitHub Actions
-- GitHub Container Registry
+
+Development is fully containerized using Docker and integrated with GitHub Actions for continuous integration and reproducible execution.
 
 ---
 
-# Roadmap
+## Research Philosophy
 
-## Stage 0 — Infrastructure ✅
+The primary objective of Astro-Flow-3D is not merely to train another segmentation model, but to establish a reusable research framework for astronomical machine learning.
 
-- [x] Project bootstrap
-- [x] Docker environment
-- [x] CI/CD pipeline
-- [x] GHCR integration
-- [x] Repository workflow
-
----
-
-## Stage 1 — Data Engineering 🟢
-
-### Data Acquisition
-
-- [x] CEERS discovery
-- [x] FITS retrieval
-
-### Data Inspection
-
-- [x] FITS exploration
-- [x] Image visualization
-
-### Preprocessing
-
-- [x] Image normalization
-- [x] Tile generation
-- [x] Statistics generation
-- [x] Metadata indexing
-- [x] PyTorch dataset
-
-### Remaining
-
-- [ ] Reconstruction validation
-- [ ] Configuration system
-- [ ] Batch preprocessing
-
----
-
-## Stage 2 — Dataset Intelligence
-
-- [ ] Multi-band alignment
-- [ ] Multi-channel tensors
-- [ ] Dataset versioning
-- [ ] Data augmentation
-- [ ] Train / Validation / Test splits
-
----
-
-## Stage 3 — Baseline Models
-
-- [ ] U-Net
-- [ ] Attention U-Net
-- [ ] Training pipeline
-- [ ] Evaluation metrics
-
----
-
-## Stage 4 — Transformer Architectures
-
-- [ ] Swin Transformer
-- [ ] SegFormer
-- [ ] Mask2Former
-- [ ] Multi-task learning
-
----
-
-## Stage 5 — Astro-Flow-3D
-
-- [ ] Physics-aware prediction heads
-- [ ] Morphology representation learning
-- [ ] Probabilistic reconstruction
-- [ ] 3D morpho-spectral scene generation
-
----
-
-# Development Philosophy
-
-Astro-Flow-3D is designed as a modular research framework.
-
-Each stage of the pipeline—from FITS ingestion to dataset creation and model training—is implemented as reusable, independently testable components. This design enables reproducibility, scalability to large JWST surveys, and straightforward experimentation with future architectures.
+Accordingly, the software emphasizes reproducibility, modularity, scientific correctness, and scalability over rapid experimentation. Every stage of the processing pipeline is designed as an independently testable component so that future work—including transformer architectures, physics-aware learning objectives, and probabilistic reconstruction—can be incorporated without requiring major architectural changes.
