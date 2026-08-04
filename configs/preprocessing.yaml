@@ -1,0 +1,15 @@
+paths:
+  input_root: downloads
+  output_root: /data/astroflow/datasets/ceers_v1
+
+preprocessing:
+  lower_percentile: 1.0
+  upper_percentile: 99.8
+
+tiling:
+  tile_size: 256
+  stride: 256
+
+statistics:
+  bright_threshold: 0.80
+  dark_threshold: 0.05
