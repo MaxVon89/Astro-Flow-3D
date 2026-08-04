@@ -11,17 +11,36 @@ def run_pipeline(
     output_root="/data/astroflow/processed",
     tile_size=256,
     stride=256,
+    lower_percentile=1.0,
+    upper_percentile=99.8,
 ):
     """
     Complete preprocessing pipeline.
 
-    Steps
-    -----
-    1. Load FITS file
-    2. Normalize science image
-    3. Generate image tiles
-    4. Compute tile statistics
-    5. Return statistics DataFrame
+    Parameters
+    ----------
+    fits_path : str | Path
+        Input FITS file.
+
+    output_root : str | Path, default="/data/astroflow/processed"
+        Output directory for tiles and metadata.
+
+    tile_size : int, default=256
+        Tile width and height.
+
+    stride : int, default=256
+        Tile extraction stride.
+
+    lower_percentile : float, default=1.0
+        Lower clipping percentile used during normalization.
+
+    upper_percentile : float, default=99.8
+        Upper clipping percentile used during normalization.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Statistics DataFrame for generated tiles.
     """
 
     fits_path = Path(fits_path)
@@ -48,7 +67,11 @@ def run_pipeline(
     print(f"Loaded image : {image.shape}")
 
     print("\n[2/4] Normalizing image...")
-    image = normalize(image)
+    image = normalize(
+        image,
+        lower_percentile=lower_percentile,
+        upper_percentile=upper_percentile,
+    )
 
     print(
         f"Range : {image.min():.4f} → {image.max():.4f}"
