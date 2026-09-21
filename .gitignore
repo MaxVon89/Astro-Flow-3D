@@ -85,5 +85,5 @@ docker-compose.override.yml
 # ==========================
 # Agent
 # ==========================
-O-Agent/
-O-Agent/*
+
+o_agent/
