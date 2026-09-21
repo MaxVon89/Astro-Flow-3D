@@ -1,0 +1,73 @@
+.
+├── LICENSE
+├── README.md
+├── agent
+├── checkpoints -> /data/astroflow/checkpoints
+├── configs
+│   └── preprocessing.yaml
+├── data_processed -> /data/astroflow/processed
+├── data_raw -> /data/astroflow/raw
+├── docker
+│   ├── Dockerfile
+│   └── Dockerfile.ci
+├── docs
+├── downloads
+│   └── mastDownload
+│       └── JWST
+│           └── jw01345003001_08201_00002_nrca2
+│               └── jw01345003001_08201_00002_nrca2_i2d.fits
+├── jwst_asinh.png
+├── jwst_histogram.png
+├── jwst_log.png
+├── jwst_percentile.png
+├── jwst_preporcessed_1.png
+├── jwst_raw.png
+├── notebooks
+├── reconstruction_comparison.png
+├── reconstruction_weights.png
+├── requirements.txt
+├── scripts
+│   └── data
+│       ├── build_dataset.py
+│       ├── check_environment.py
+│       ├── check_tiles.py
+│       ├── dataset_report.py
+│       ├── download_ceers.py
+│       ├── download_first_fits.py
+│       ├── inspect_fits.py
+│       ├── reconstruct_tiles.py
+│       ├── visualize_fits.py
+│       └── visualize_tile_grid.py
+├── src
+│   ├── data
+│   │   ├── __pycache__
+│   │   │   ├── dataset_builder.cpython-312.pyc
+│   │   │   ├── fits_loader.cpython-312.pyc
+│   │   │   ├── jwst_dataset.cpython-312.pyc
+│   │   │   ├── pipeline.cpython-312.pyc
+│   │   │   ├── preprocess.cpython-312.pyc
+│   │   │   ├── reconstruction.cpython-312.pyc
+│   │   │   ├── statistics.cpython-312.pyc
+│   │   │   └── tile_generator.cpython-312.pyc
+│   │   ├── dataset_builder.py
+│   │   ├── fits_loader.py
+│   │   ├── jwst_dataset.py
+│   │   ├── pipeline.py
+│   │   ├── preprocess.py
+│   │   ├── reconstruction.py
+│   │   ├── statistics.py
+│   │   ├── tile_generator.py
+│   │   └── tile_statistics.py
+│   ├── evaluation
+│   │   ├── __pycache__
+│   │   │   └── image_metrics.cpython-312.pyc
+│   │   └── image_metrics.py
+│   ├── models
+│   ├── training
+│   └── utils
+│       └── config.py
+├── tests
+└── tile_grid.png
+
+24 directories, 46 files
+nvidia@brev-qkgvzr56d:~/projects/Astro-Flow-3D$
