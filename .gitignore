@@ -88,3 +88,4 @@ docker-compose.override.yml
 
 o_agent/
 s_agent/
+lg_agent/
