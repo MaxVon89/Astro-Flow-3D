@@ -1,0 +1,14 @@
+{
+  "task_id": "example_dataset_build",
+  "status": "passed",
+  "outputs": {
+    "index_path": "output/index.csv",
+    "manifest_path": "output/manifest.json",
+    "tile_directory": "output/tiles"
+  },
+  "stdout": "Dataset build completed successfully\nGenerated 128 tiles\nComputed statistics\n",
+  "stderr": "",
+  "exit_code": 0,
+  "runtime_seconds": 45.23,
+  "command_hash": "a1b2c3d4e5f67890"
+}

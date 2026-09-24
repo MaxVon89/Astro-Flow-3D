@@ -1,0 +1,15 @@
+{
+  "task_id": "example_dataset_build",
+  "parent_task_id": null,
+  "objective": "Build JWST dataset from FITS file",
+  "inputs": {
+    "input_fits": "/data/test_observation.fits"
+  },
+  "expected_outputs": [
+    "output/index.csv",
+    "output/manifest.json",
+    "output/tiles/*.npy"
+  ],
+  "created_at": "2026-09-23T10:00:00Z",
+  "artifact_signature": "abc123def456"
+}

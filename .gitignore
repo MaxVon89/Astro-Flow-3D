@@ -87,3 +87,5 @@ docker-compose.override.yml
 # ==========================
 
 o_agent/
+lg_agent/
+run_agent.py
