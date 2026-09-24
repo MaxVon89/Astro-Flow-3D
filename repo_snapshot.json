@@ -1,0 +1,46 @@
+{
+  "constraints": [
+    "local-only execution",
+    "validated outputs required",
+    "no uncontrolled shell commands",
+    "artifact-first workflow"
+  ],
+  "current_files": [
+    ".venv/lib/python3.12/site-packages/_yaml/__init__.py",
+    ".venv/lib/python3.12/site-packages/annotated_types/__init__.py",
+    ".venv/lib/python3.12/site-packages/annotated_types/test_cases.py",
+    ".venv/lib/python3.12/site-packages/anyio/__init__.py",
+    ".venv/lib/python3.12/site-packages/anyio/_backends/__init__.py",
+    ".venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py",
+    ".venv/lib/python3.12/site-packages/anyio/_backends/_trio.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/__init__.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_asyncio_selector_thread.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_concurrency_utils.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_contextmanagers.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_eventloop.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_exceptions.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_fileio.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_futures.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_resources.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_signals.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_sockets.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_streams.py",
+    ".venv/lib/python3.12/site-packages/anyio/_core/_subprocesses.py"
+  ],
+  "key_components": [
+    "src/data/preprocess.py",
+    "src/data/tile_generator.py",
+    "src/data/dataset_builder.py",
+    "src/data/pipeline.py"
+  ],
+  "pipeline_summary": "JWST FITS ingestion -> normalization -> tile generation -> dataset manifest -> validation",
+  "repo_root": "/home/nvidia/mmk/Astro-Flow-3D",
+  "structure": [
+    "src/data",
+    "src/utils",
+    "scripts/data",
+    "configs",
+    "lg_agent",
+    "s_agent"
+  ]
+}

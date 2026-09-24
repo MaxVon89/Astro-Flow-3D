@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -83,7 +84,7 @@ def build_plan_for_objective(objective: str, repo_root: str | Path) -> List[Dict
         "objective": "Inspect the current repository state and choose the next safe action.",
         "tool": "repo_context",
         "args": {},
-        "expected_outputs": ["repo_snapshot.json"],
+        "expected_outputs": ["llm_plan.json", "repo_snapshot.json"],
         "risk_level": "low",
     }]
 
@@ -91,8 +92,51 @@ def build_plan_for_objective(objective: str, repo_root: str | Path) -> List[Dict
 def execute_registered_tool(tool: str, args: Dict[str, Any]) -> Dict[str, Any]:
     tool_name = (tool or "").strip()
     if tool_name == "repo_context":
-        repo_root = args.get("repo_root", ".")
-        return {"repo_snapshot": summarize_repo(repo_root), "artifacts": []}
+        repo_root = Path(args.get("repo_root", ".")).resolve()
+        repo_root.mkdir(parents=True, exist_ok=True)
+        repo_snapshot = summarize_repo(repo_root)
+
+        plan_payload = {
+            "objective": "Inspect repo and build a safe local execution plan",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "repo_root": str(repo_root),
+            "repo_snapshot": repo_snapshot,
+            "steps": [
+                {
+                    "name": "inspect_repo_structure",
+                    "description": "Analyze repository structure and components.",
+                    "tool": "repo_context",
+                    "type": "analysis",
+                },
+                {
+                    "name": "generate_preprocessing_plan",
+                    "description": "Create a safe workflow for JWST FITS preprocessing and dataset building.",
+                    "tool": "plan_generator",
+                    "dependencies": ["inspect_repo_structure"],
+                    "type": "planning",
+                },
+            ],
+            "constraints": [
+                "local-only execution",
+                "validated outputs required",
+                "no uncontrolled shell commands",
+                "artifact-first workflow",
+            ],
+            "pipeline_summary": "JWST FITS ingestion -> normalization -> tile generation -> dataset manifest -> validation",
+        }
+
+        llm_plan_path = repo_root / "llm_plan.json"
+        llm_plan_path.write_text(json.dumps(plan_payload, indent=2, sort_keys=True), encoding="utf-8")
+
+        snapshot_path = repo_root / "repo_snapshot.json"
+        snapshot_path.write_text(json.dumps(repo_snapshot, indent=2, sort_keys=True), encoding="utf-8")
+
+        return {
+            "repo_snapshot": repo_snapshot,
+            "plan_path": str(llm_plan_path),
+            "snapshot_path": str(snapshot_path),
+            "artifacts": [str(llm_plan_path), str(snapshot_path)],
+        }
 
     if tool_name == "normalize":
         from src.data.preprocess import normalize
