@@ -1,0 +1,15 @@
+{
+  "task_id": "demo_task_001",
+  "objective": "Normalize a synthetic image and validate output",
+  "tool": "normalize",
+  "args": {
+    "repo_root": ".",
+    "output_dir": "artifacts/normalize",
+    "lower_percentile": 1.0,
+    "upper_percentile": 99.8
+  },
+  "expected_outputs": [
+    "normalized_image.npy"
+  ],
+  "risk_level": "low"
+}
