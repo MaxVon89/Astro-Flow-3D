@@ -1,0 +1,53 @@
+[Unit]
+Description=Astro-Flow-3D Persistent Training Run
+Documentation=https://github.com/yourorg/astro-flow-3d
+After=network.target nvidia-smi.service
+Wants=nvidia-smi.service
+
+[Service]
+Type=simple
+User=nvidia
+Group=nvidia
+
+# Working directory
+WorkingDirectory=/home/nvidia/projects/Astro-Flow-3D
+
+# Environment variables
+Environment="CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7"
+Environment="LD_LIBRARY_PATH=/usr/local/cuda/lib64"
+Environment="PYTHONUNBUFFERED=1"
+
+# Command to run
+ExecStartPre=/bin/bash -c 'echo "Pre-start: Verifying GPUs..." && nvidia-smi --query-gpu=name --format=csv,noheader'
+ExecStart=/home/nvidia/projects/Astro-Flow-3D/venv/bin/python src/experiments/run.py --config configs/experiments/persistent_run.yaml
+
+# Resource limits
+MemoryMax=70G
+MemoryHigh=65G
+CPUQuota=800%
+
+# Restart policy
+Restart=always
+RestartSec=30
+
+# Timeout
+TimeoutStartSec=600
+TimeoutStopSec=300
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=astroflow-experiment
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+
+# Allow access to data directories
+ReadWritePaths=/data/astroflow
+ReadWritePaths=/home/nvidia/projects/Astro-Flow-3D
+
+[Install]
+WantedBy=multi-user.target

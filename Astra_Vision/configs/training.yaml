@@ -1,0 +1,67 @@
+# Training configuration for JWST Multi-Modal ViT
+
+run:
+  id: jwst_multimodal_vit
+  mode: supervised  # pretrain or supervised
+  device: cuda
+  seed: 42
+
+data:
+  # Path to preprocessed tile directory
+  train_dir: /data/astroflow/datasets/jwst_multimodal/tiles
+  val_split: 0.1
+  batch_size: 16
+  num_workers: 8
+
+  # Band configuration
+  nircam_bands: 6
+  miri_bands: 4
+  total_bands: 10
+
+  # Preprocessing
+  img_size: 256
+  patch_size: 16
+  mask_prob: 0.5  # For pretraining
+
+model:
+  variant: base  # tiny, small, base, large
+  use_cross_attention: true
+  psf_scale_factor: 4.0  # MIRI/NIRCam resolution ratio
+
+  # Architecture
+  embed_dim: 768
+  depth: 12
+  num_heads: 12
+  mlp_ratio: 4.0
+
+  # Physical parameters to predict
+  num_classes: 10
+
+training:
+  # Supervised training
+  num_epochs: 50
+  learning_rate: 1e-4
+  weight_decay: 0.05
+  grad_clip: 1.0
+
+  # Pretraining
+  pretrain_mask_strategy: random  # random, contiguous, fixed
+
+  # Scheduler
+  scheduler: cosine_warmup
+  warmup_epochs: 5
+
+checkpointing:
+  enabled: true
+  save_dir: outputs/checkpoints
+  max_checkpoints: 10
+  save_frequency_epochs: 5
+
+logging:
+  log_dir: outputs/logs
+  log_interval_steps: 100
+  log_metrics: true
+
+resources:
+  visible_devices: "0,1,2,3,4,5,6,7"
+  use_ddp: false

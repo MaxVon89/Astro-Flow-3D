@@ -1,0 +1,62 @@
+# Persistent GPU experiment config for ~30 hour run
+# Generated for astro-flow-3d training
+
+run:
+  id: "persistent_30h_$(date +%Y%m%d_%H%M%S)"
+  description: "Persistent 30-hour training run on 8x A100 GPUs"
+  duration_hours: 30
+
+# Data configuration
+data:
+  train_dataset: /data/astroflow/datasets/ceers_v1/train
+  val_dataset: /data/astroflow/datasets/ceers_v1/val
+  batch_size: 16
+  num_workers: 8
+  pin_memory: true
+
+# Model configuration
+model:
+  type: "astroflow"
+  channels: 4
+  image_size: 256
+  embedding_dim: 512
+
+# Training configuration
+training:
+  epochs: 50  # Will be overridden by step count for persistence
+  steps: 50000  # Total training steps
+  learning_rate: 0.0001
+  weight_decay: 0.00001
+  gradient_accumulation: 1
+  device: "cuda"
+  visible_devices: "0,1,2,3,4,5,6,7"
+
+# Checkpointing configuration
+checkpointing:
+  enabled: true
+  save_dir: "/data/astroflow/checkpoints"
+  save_frequency_minutes: 30
+  save_frequency_steps: null  # If set, overrides minutes
+  resume_from: null  # Set to checkpoint path to resume
+  max_checkpoints: 10
+  save_optimizer_state: true
+  save_scheduler_state: true
+
+# Logging configuration
+logging:
+  log_dir: "/data/astroflow/logs"
+  log_level: "INFO"
+  log_format: "json"
+  metrics_file: "metrics.jsonl"
+  stdout_redirect: true
+
+# Validation configuration
+validation:
+  enabled: true
+  interval_steps: 500
+  val_check_limit: 100
+
+# Resource configuration
+resources:
+  use_ddp: false  # Disabled - requires proper DDP initialization
+  timeout_seconds: 300

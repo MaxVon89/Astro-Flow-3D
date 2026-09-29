@@ -5,10 +5,11 @@ def normalize(
     image: np.ndarray,
     lower_percentile: float = 1.0,
     upper_percentile: float = 99.8,
+    method: str = "percentile",
+    asinh_alpha: float = 0.1,
 ) -> np.ndarray:
     """
-    Normalize a JWST science image using percentile clipping
-    followed by min-max scaling.
+    Normalize a JWST science image using various normalization methods.
 
     Parameters
     ----------
@@ -16,10 +17,16 @@ def normalize(
         Input science image.
 
     lower_percentile : float, default=1.0
-        Lower clipping percentile.
+        Lower clipping percentile for percentile method.
 
     upper_percentile : float, default=99.8
-        Upper clipping percentile.
+        Upper clipping percentile for percentile method.
+
+    method : str, default="percentile"
+        Normalization method to use: "percentile" or "asinh".
+
+    asinh_alpha : float, default=0.1
+        Alpha parameter for asinh normalization (controls stretch).
 
     Returns
     -------
@@ -35,19 +42,37 @@ def normalize(
         neginf=0.0,
     )
 
-    # Percentile clipping
-    p_low = np.percentile(image, lower_percentile)
-    p_high = np.percentile(image, upper_percentile)
+    if method == "percentile":
+        # Percentile clipping
+        p_low = np.percentile(image, lower_percentile)
+        p_high = np.percentile(image, upper_percentile)
 
-    image = np.clip(image, p_low, p_high)
+        image = np.clip(image, p_low, p_high)
 
-    # Min-max normalization
-    min_val = image.min()
-    max_val = image.max()
+        # Min-max normalization
+        min_val = image.min()
+        max_val = image.max()
 
-    if max_val == min_val:
-        return np.zeros_like(image, dtype=np.float32)
+        if max_val == min_val:
+            return np.zeros_like(image, dtype=np.float32)
 
-    image = (image - min_val) / (max_val - min_val)
+        image = (image - min_val) / (max_val - min_val)
+        
+    elif method == "asinh":
+        # Asinh stretch
+        # Based on SDSS implementation
+        image = np.arcsinh(image / asinh_alpha)
+        
+        # Min-max normalization to [0, 1]
+        min_val = image.min()
+        max_val = image.max()
+
+        if max_val == min_val:
+            return np.zeros_like(image, dtype=np.float32)
+
+        image = (image - min_val) / (max_val - min_val)
+        
+    else:
+        raise ValueError(f"Unknown normalization method: {method}")
 
     return image.astype(np.float32)

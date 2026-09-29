@@ -1,0 +1,1 @@
+"""Schema definitions for Astro-Flow-3D agent system."""

@@ -13,6 +13,8 @@ def run_pipeline(
     stride=256,
     lower_percentile=1.0,
     upper_percentile=99.8,
+    normalization_method="percentile",
+    asinh_alpha=0.1,
 ):
     """
     Complete preprocessing pipeline.
@@ -36,6 +38,12 @@ def run_pipeline(
 
     upper_percentile : float, default=99.8
         Upper clipping percentile used during normalization.
+
+    normalization_method : str, default="percentile"
+        Normalization method to use: "percentile" or "asinh".
+
+    asinh_alpha : float, default=0.1
+        Alpha parameter for asinh normalization (controls stretch).
 
     Returns
     -------
@@ -71,6 +79,8 @@ def run_pipeline(
         image,
         lower_percentile=lower_percentile,
         upper_percentile=upper_percentile,
+        method=normalization_method,
+        asinh_alpha=asinh_alpha,
     )
 
     print(

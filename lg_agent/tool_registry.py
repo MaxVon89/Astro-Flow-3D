@@ -1,197 +1,58 @@
-from __future__ import annotations
+"""Registry of allowed tools for the Astro-Flow-3D agent system."""
 
-import json
-import sys
-from datetime import datetime, timezone
+import importlib
+from typing import Dict, Any, Callable
 from pathlib import Path
-from typing import Any, Dict, List
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Import actual tool functions from src/data modules
+from src.data.pipeline import run_pipeline
+from src.data.preprocess import normalize
+from src.data.tile_generator import generate_tiles
+from src.data.dataset_builder import build_dataset
 
-from src.data.dataset_builder import DatasetBuilder
+# Registry mapping tool names to their implementations
+TOOL_REGISTRY: Dict[str, Callable] = {
+    "run_pipeline": run_pipeline,
+    "normalize": normalize,
+    "generate_tiles": generate_tiles,
+    "build_dataset": build_dataset
+}
 
-
-def summarize_repo(repo_root: str | Path) -> Dict[str, Any]:
-    root = Path(repo_root)
-    return {
-        "repo_root": str(root),
-        "structure": [
-            "src/data",
-            "src/utils",
-            "scripts/data",
-            "configs",
-            "lg_agent",
-            "s_agent",
-        ],
-        "key_components": [
-            "src/data/preprocess.py",
-            "src/data/tile_generator.py",
-            "src/data/dataset_builder.py",
-            "src/data/pipeline.py",
-        ],
-        "pipeline_summary": "JWST FITS ingestion -> normalization -> tile generation -> dataset manifest -> validation",
-        "constraints": [
-            "local-only execution",
-            "validated outputs required",
-            "no uncontrolled shell commands",
-            "artifact-first workflow",
-        ],
-        "current_files": sorted(str(p.relative_to(root)) for p in root.rglob("*.py") if "__pycache__" not in str(p))[:20],
-    }
-
-
-def build_plan_for_objective(objective: str, repo_root: str | Path) -> List[Dict[str, Any]]:
-    objective_lower = objective.lower()
-    if "dataset" in objective_lower or "build" in objective_lower:
-        return [{
-            "task_id": "dataset_build",
-            "objective": "Build a JWST tile dataset from the available FITS files.",
-            "tool": "build_dataset",
-            "args": {
-                "input_root": str(Path(repo_root) / "data"),
-                "output_root": str(Path(repo_root) / "artifacts" / "dataset"),
-                "tile_size": 256,
-                "stride": 256,
-            },
-            "expected_outputs": ["manifest.json", "index.csv", "tiles"],
-            "risk_level": "medium",
-        }]
-
-    if "normalize" in objective_lower or "preprocess" in objective_lower:
-        return [{
-            "task_id": "normalize_image",
-            "objective": "Normalize the JWST science image and prepare it for tiling.",
-            "tool": "normalize",
-            "args": {"lower_percentile": 1.0, "upper_percentile": 99.8},
-            "expected_outputs": ["normalized_image.npy"],
-            "risk_level": "low",
-        }]
-
-    if "tile" in objective_lower or "reconstruct" in objective_lower:
-        return [{
-            "task_id": "tile_reconstruction",
-            "objective": "Generate and validate a set of image tiles and overlap-reconstruction checks.",
-            "tool": "generate_tiles",
-            "args": {"tile_size": 256, "stride": 128},
-            "expected_outputs": ["tiles", "reconstruction_report.json"],
-            "risk_level": "medium",
-        }]
-
-    return [{
-        "task_id": "repo_summary",
-        "objective": "Inspect the current repository state and choose the next safe action.",
-        "tool": "repo_context",
-        "args": {},
-        "expected_outputs": ["llm_plan.json", "repo_snapshot.json"],
-        "risk_level": "low",
-    }]
-
-
-def execute_registered_tool(tool: str, args: Dict[str, Any]) -> Dict[str, Any]:
-    tool_name = (tool or "").strip()
-    if tool_name == "repo_context":
-        repo_root = Path(args.get("repo_root", ".")).resolve()
-        repo_root.mkdir(parents=True, exist_ok=True)
-        repo_snapshot = summarize_repo(repo_root)
-
-        plan_payload = {
-            "objective": "Inspect repo and build a safe local execution plan",
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-            "repo_root": str(repo_root),
-            "repo_snapshot": repo_snapshot,
-            "steps": [
-                {
-                    "name": "inspect_repo_structure",
-                    "description": "Analyze repository structure and components.",
-                    "tool": "repo_context",
-                    "type": "analysis",
-                },
-                {
-                    "name": "generate_preprocessing_plan",
-                    "description": "Create a safe workflow for JWST FITS preprocessing and dataset building.",
-                    "tool": "plan_generator",
-                    "dependencies": ["inspect_repo_structure"],
-                    "type": "planning",
-                },
-            ],
-            "constraints": [
-                "local-only execution",
-                "validated outputs required",
-                "no uncontrolled shell commands",
-                "artifact-first workflow",
-            ],
-            "pipeline_summary": "JWST FITS ingestion -> normalization -> tile generation -> dataset manifest -> validation",
-        }
-
-        llm_plan_path = repo_root / "llm_plan.json"
-        llm_plan_path.write_text(json.dumps(plan_payload, indent=2, sort_keys=True), encoding="utf-8")
-
-        snapshot_path = repo_root / "repo_snapshot.json"
-        snapshot_path.write_text(json.dumps(repo_snapshot, indent=2, sort_keys=True), encoding="utf-8")
-
+def execute_registered_tool(tool_name: str, args: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Execute a tool from the registry with provided arguments.
+    
+    Parameters
+    ----------
+    tool_name : str
+        Name of the tool to execute
+        
+    args : dict
+        Arguments to pass to the tool
+        
+    Returns
+    -------
+    dict
+        Execution result with artifacts and metrics
+    """
+    if tool_name not in TOOL_REGISTRY:
+        raise ValueError(f"Tool '{tool_name}' is not registered")
+        
+    # Get the tool function from registry
+    tool_func = TOOL_REGISTRY[tool_name]
+    
+    # Execute the tool
+    try:
+        result = tool_func(**args)
+        
+        # Prepare result for agent consumption
         return {
-            "repo_snapshot": repo_snapshot,
-            "plan_path": str(llm_plan_path),
-            "snapshot_path": str(snapshot_path),
-            "artifacts": [str(llm_plan_path), str(snapshot_path)],
+            "task_id": args.get("task_id", "unknown"),
+            "tool": tool_name,
+            "status": "success",
+            "artifacts": [],
+            "metrics": {},
+            "result": result
         }
-
-    if tool_name == "normalize":
-        from src.data.preprocess import normalize
-        import numpy as np
-        image = np.zeros((64, 64), dtype=np.float32)
-        normalized = normalize(image, **{k: v for k, v in args.items() if k in {"lower_percentile", "upper_percentile"}})
-        output_dir = Path(args.get("output_dir", "."))
-        output_dir.mkdir(parents=True, exist_ok=True)
-        path = output_dir / "normalized_image.npy"
-        np.save(path, normalized)
-        return {"normalized_image": str(path), "artifacts": [str(path)]}
-
-    if tool_name == "generate_tiles":
-        from src.data.tile_generator import generate_tiles
-        import numpy as np
-        image = np.zeros((256, 256), dtype=np.float32)
-        output_dir = Path(args.get("output_dir", "."))
-        output_dir.mkdir(parents=True, exist_ok=True)
-        count = generate_tiles(
-            image=image,
-            output_dir=output_dir,
-            source_name=args.get("source_name", "synthetic"),
-            tile_size=int(args.get("tile_size", 256)),
-            stride=int(args.get("stride", 128)),
-        )
-        return {"tile_count": count, "artifacts": [str(p) for p in output_dir.iterdir()]}
-
-    if tool_name == "build_dataset":
-        input_root = Path(args.get("input_root", "."))
-        output_root = Path(args.get("output_root", "."))
-        builder = DatasetBuilder(
-            input_root=input_root,
-            output_root=output_root,
-            tile_size=int(args.get("tile_size", 256)),
-            stride=int(args.get("stride", 256)),
-        )
-        try:
-            builder.build()
-        except FileNotFoundError:
-            output_root.mkdir(parents=True, exist_ok=True)
-            manifest = {
-                "dataset_name": output_root.name,
-                "created_at": __import__("datetime").datetime.now().isoformat(),
-                "num_images": 0,
-                "num_tiles": 0,
-                "tile_size": int(args.get("tile_size", 256)),
-                "stride": int(args.get("stride", 256)),
-                "astroflow_version": "local-agent",
-            }
-            (output_root / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-            (output_root / "index.csv").write_text("tile_filename,source_name\n", encoding="utf-8")
-        return {
-            "manifest_path": str(output_root / "manifest.json"),
-            "index_path": str(output_root / "index.csv"),
-            "artifacts": [str(output_root / "manifest.json"), str(output_root / "index.csv")],
-        }
-
-    raise ValueError(f"Unsupported tool: {tool_name}")
+    except Exception as e:
+        raise RuntimeError(f"Tool '{tool_name}' execution failed: {str(e)}")

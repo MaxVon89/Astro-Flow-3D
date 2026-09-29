@@ -18,12 +18,20 @@ class DatasetBuilder:
         output_root: Union[str, Path],
         tile_size: int = 256,
         stride: int = 256,
+        lower_percentile: float = 1.0,
+        upper_percentile: float = 99.8,
+        normalization_method: str = "percentile",
+        asinh_alpha: float = 0.1,
     ) -> None:
         """Create a dataset builder with input and output roots."""
         self.input_root = Path(input_root)
         self.output_root = Path(output_root)
         self.tile_size = tile_size
         self.stride = stride
+        self.lower_percentile = lower_percentile
+        self.upper_percentile = upper_percentile
+        self.normalization_method = normalization_method
+        self.asinh_alpha = asinh_alpha
 
         if self.tile_size <= 0 or self.stride <= 0:
             raise ValueError("tile_size and stride must be positive integers")
@@ -59,6 +67,10 @@ class DatasetBuilder:
             output_root=observation_output,
             tile_size=self.tile_size,
             stride=self.stride,
+            lower_percentile=self.lower_percentile,
+            upper_percentile=self.upper_percentile,
+            normalization_method=self.normalization_method,
+            asinh_alpha=self.asinh_alpha,
         )
 
     def merge_indices(self) -> Path:
@@ -92,6 +104,8 @@ class DatasetBuilder:
             "num_tiles": len(tile_paths),
             "tile_size": self.tile_size,
             "stride": self.stride,
+            "normalization_method": self.normalization_method,
+            "asinh_alpha": self.asinh_alpha,
             "astroflow_version": self._astroflow_version(),
         }
 
@@ -181,6 +195,8 @@ class DatasetBuilder:
         print(f"Generated Tiles: {manifest.get('num_tiles', 'unknown')}")
         print(f"Tile Size: {manifest.get('tile_size', self.tile_size)}")
         print(f"Stride: {manifest.get('stride', self.stride)}")
+        print(f"Normalization Method: {manifest.get('normalization_method', self.normalization_method)}")
+        print(f"Asinh Alpha: {manifest.get('asinh_alpha', self.asinh_alpha)}")
         print(f"Master Index: {index_path}")
         print(f"Manifest: {manifest_path}")
         print(f"Output Directory: {self.output_root}")

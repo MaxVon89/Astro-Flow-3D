@@ -1,0 +1,31 @@
+# Minimal smoke test config for pre-flight validation
+run:
+  id: "smoke_test"
+  description: "Smoke test: 1-step dry run with checkpoint"
+  duration_hours: 0.1
+
+data:
+  train_dataset: /data/astroflow/datasets/ceers_v1/train
+  val_dataset: /data/astroflow/datasets/ceers_v1/val
+  batch_size: 2
+  num_workers: 2
+
+training:
+  epochs: 1
+  steps: 2  # Just 2 steps for smoke test
+  learning_rate: 1e-4
+
+checkpointing:
+  enabled: true
+  save_dir: "/data/astroflow/checkpoints"
+  save_frequency_steps: 1
+  resume_from: null
+
+logging:
+  log_dir: "/data/astroflow/logs"
+  log_level: "DEBUG"
+  stdout_redirect: true
+
+resources:
+  use_ddp: false  # Single GPU for smoke test
+  visible_devices: "0"

@@ -5,6 +5,8 @@ paths:
 preprocessing:
   lower_percentile: 1.0
   upper_percentile: 99.8
+  normalization_method: percentile
+  asinh_alpha: 0.1
 
 tiling:
   tile_size: 256
