@@ -1,0 +1,83 @@
+{
+  "tile_size": 256,
+  "stride": 256,
+  "n_tiles": 12,
+  "n_bands": 1,
+  "band_names": [
+    "miri"
+  ],
+  "tiles": [
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000000.npz",
+      "x": 0,
+      "y": 0,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000001.npz",
+      "x": 256,
+      "y": 0,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000002.npz",
+      "x": 512,
+      "y": 0,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000003.npz",
+      "x": 768,
+      "y": 0,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000004.npz",
+      "x": 0,
+      "y": 256,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000005.npz",
+      "x": 256,
+      "y": 256,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000006.npz",
+      "x": 512,
+      "y": 256,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000007.npz",
+      "x": 768,
+      "y": 256,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000008.npz",
+      "x": 0,
+      "y": 512,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000009.npz",
+      "x": 256,
+      "y": 512,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000010.npz",
+      "x": 512,
+      "y": 512,
+      "tile_size": 256
+    },
+    {
+      "path": "Astra_Vision/outputs/tiles_processed/tile_set_002/tile_000011.npz",
+      "x": 768,
+      "y": 512,
+      "tile_size": 256
+    }
+  ]
+}

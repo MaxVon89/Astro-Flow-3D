@@ -1,3 +1,7 @@
+Astra_Vision/models/final-models/best_model.pt
+Astra_Vision/models/final-models/final_model.pt
+
+
 # ==========================
 # Data
 # ==========================
@@ -95,14 +99,22 @@ docker-compose.override.yml
 # Astra_Vision - Data and outputs (remove to track generated artifacts)
 
 Astra_Vision/outputs/checkpoints/
+Astra_Vision/outputs/logs/
 
 # ==========================
 # Root-level outputs and artifacts
 # ==========================
 
-outputs/
 outputs/checkpoints/*.pt
 outputs/logs/
+
+# Track specific outputs (unignore) - negation patterns work for files
+!Astra_Vision/outputs/full_run_20h/logs/training_20h.jsonl
+!Astra_Vision/outputs/evaluation_report_metrics.json
+!Astra_Vision/outputs/evaluation/metrics.json
+!outputs/full_run_20h/logs/training_20h.jsonl
+!outputs/evaluation_report_metrics.json
+!outputs/evaluation/metrics.json
 
 #artifacts/
 

@@ -1,0 +1,71 @@
+{"step": 10, "phase": "train", "loss": 1.6038411855697632, "learning_rate": 1.8e-06, "batch_time_ms": 160.31014919281006, "timestamp": "2026-09-30T03:56:26.409778+00:00"}
+{"step": 20, "phase": "train", "loss": 0.1131298616528511, "learning_rate": 3.8e-06, "batch_time_ms": 166.60423278808594, "timestamp": "2026-09-30T03:56:39.609240+00:00"}
+{"step": 30, "phase": "train", "loss": 0.055335722863674164, "learning_rate": 5.8e-06, "batch_time_ms": 160.13822555541992, "timestamp": "2026-09-30T03:56:52.167966+00:00"}
+{"step": 40, "phase": "train", "loss": 0.03144173324108124, "learning_rate": 7.8e-06, "batch_time_ms": 174.66528415679932, "timestamp": "2026-09-30T03:57:04.694183+00:00"}
+{"step": 50, "phase": "train", "loss": 0.016029534861445427, "learning_rate": 9.800000000000001e-06, "batch_time_ms": 166.66464805603027, "timestamp": "2026-09-30T03:57:17.149244+00:00"}
+{"step": 10, "phase": "train", "loss": 1.1597936153411865, "learning_rate": 1.8e-06, "batch_time_ms": 160.2269172668457, "timestamp": "2026-09-30T04:11:36.960158+00:00"}
+{"step": 20, "phase": "train", "loss": 0.09509751945734024, "learning_rate": 3.8e-06, "batch_time_ms": 284.5483064651489, "timestamp": "2026-09-30T04:11:52.569419+00:00"}
+{"step": 30, "phase": "train", "loss": 0.04996073246002197, "learning_rate": 5.8e-06, "batch_time_ms": 423.50895404815674, "timestamp": "2026-09-30T04:12:19.076131+00:00"}
+{"step": 40, "phase": "train", "loss": 0.02377660945057869, "learning_rate": 7.8e-06, "batch_time_ms": 292.78268814086914, "timestamp": "2026-09-30T04:12:45.026858+00:00"}
+{"step": 50, "phase": "train", "loss": 0.01978696882724762, "learning_rate": 9.800000000000001e-06, "batch_time_ms": 295.27037143707275, "timestamp": "2026-09-30T04:13:04.823428+00:00"}
+{"step": 60, "phase": "train", "loss": 0.014693530276417732, "learning_rate": 1.18e-05, "batch_time_ms": 286.43009662628174, "timestamp": "2026-09-30T04:13:24.811904+00:00"}
+{"step": 70, "phase": "train", "loss": 0.009527108632028103, "learning_rate": 1.3800000000000002e-05, "batch_time_ms": 282.2803020477295, "timestamp": "2026-09-30T04:13:43.174125+00:00"}
+{"step": 80, "phase": "train", "loss": 0.005546869710087776, "learning_rate": 1.58e-05, "batch_time_ms": 275.0839948654175, "timestamp": "2026-09-30T04:14:01.490342+00:00"}
+{"step": 90, "phase": "train", "loss": 0.0038616107776761055, "learning_rate": 1.78e-05, "batch_time_ms": 289.7519826889038, "timestamp": "2026-09-30T04:14:20.494208+00:00"}
+{"step": 100, "phase": "train", "loss": 0.0028259940445423126, "learning_rate": 1.9800000000000004e-05, "batch_time_ms": 292.4304008483887, "timestamp": "2026-09-30T04:14:40.624709+00:00"}
+{"step": 100, "phase": "validation", "val_loss": 0.0021945505868643522, "val_rmse": 0.04684603064149995, "timestamp": "2026-09-30T04:14:40.624844+00:00"}
+{"step": 110, "phase": "train", "loss": 0.002435219008475542, "learning_rate": 2.18e-05, "batch_time_ms": 291.1806583404541, "timestamp": "2026-09-30T04:14:59.772063+00:00"}
+{"step": 120, "phase": "train", "loss": 0.0024360506795346737, "learning_rate": 2.38e-05, "batch_time_ms": 293.74146461486816, "timestamp": "2026-09-30T04:15:18.080456+00:00"}
+{"step": 130, "phase": "train", "loss": 0.0019857692532241344, "learning_rate": 2.58e-05, "batch_time_ms": 298.9957809448242, "timestamp": "2026-09-30T04:15:35.965331+00:00"}
+{"step": 140, "phase": "train", "loss": 0.0019039646722376347, "learning_rate": 2.7800000000000005e-05, "batch_time_ms": 280.62121868133545, "timestamp": "2026-09-30T04:15:54.367208+00:00"}
+{"step": 150, "phase": "train", "loss": 0.0016295360401272774, "learning_rate": 2.98e-05, "batch_time_ms": 298.60572814941406, "timestamp": "2026-09-30T04:16:12.669622+00:00"}
+{"step": 160, "phase": "train", "loss": 0.0017204619944095612, "learning_rate": 3.18e-05, "batch_time_ms": 295.3158140182495, "timestamp": "2026-09-30T04:16:30.723119+00:00"}
+{"step": 170, "phase": "train", "loss": 0.0011326464591547847, "learning_rate": 3.38e-05, "batch_time_ms": 279.4820547103882, "timestamp": "2026-09-30T04:16:48.376024+00:00"}
+{"step": 180, "phase": "train", "loss": 0.0010777517454698682, "learning_rate": 3.58e-05, "batch_time_ms": 272.15445041656494, "timestamp": "2026-09-30T04:17:06.296316+00:00"}
+{"step": 190, "phase": "train", "loss": 0.001138031599111855, "learning_rate": 3.7800000000000004e-05, "batch_time_ms": 292.3320531845093, "timestamp": "2026-09-30T04:17:24.239298+00:00"}
+{"step": 200, "phase": "train", "loss": 0.0011290778638795018, "learning_rate": 3.9800000000000005e-05, "batch_time_ms": 295.6094264984131, "timestamp": "2026-09-30T04:17:42.782718+00:00"}
+{"step": 200, "phase": "validation", "val_loss": 0.00016656884690746665, "val_rmse": 0.012906155388320205, "timestamp": "2026-09-30T04:17:42.782799+00:00"}
+{"step": 10, "phase": "train", "loss": 1.0281100273132324, "learning_rate": 1.8e-06, "batch_time_ms": 132.59294033050537, "timestamp": "2026-09-30T05:02:03.982766+00:00"}
+{"step": 20, "phase": "train", "loss": 0.05478864163160324, "learning_rate": 3.8e-06, "batch_time_ms": 275.00782012939453, "timestamp": "2026-09-30T05:02:22.280252+00:00"}
+{"step": 30, "phase": "train", "loss": 0.04022342339158058, "learning_rate": 5.8e-06, "batch_time_ms": 267.29564666748047, "timestamp": "2026-09-30T05:02:40.627269+00:00"}
+{"step": 40, "phase": "train", "loss": 0.028145181015133858, "learning_rate": 7.8e-06, "batch_time_ms": 275.18560886383057, "timestamp": "2026-09-30T05:02:58.952190+00:00"}
+{"step": 50, "phase": "train", "loss": 0.023225633427500725, "learning_rate": 9.800000000000001e-06, "batch_time_ms": 253.75471115112302, "timestamp": "2026-09-30T05:03:17.012744+00:00"}
+{"step": 60, "phase": "train", "loss": 0.015030290000140667, "learning_rate": 1.18e-05, "batch_time_ms": 242.49777793884277, "timestamp": "2026-09-30T05:03:34.484786+00:00"}
+{"step": 70, "phase": "train", "loss": 0.010498322546482086, "learning_rate": 1.3800000000000002e-05, "batch_time_ms": 265.8735752105713, "timestamp": "2026-09-30T05:03:52.982296+00:00"}
+{"step": 80, "phase": "train", "loss": 0.004922348540276289, "learning_rate": 1.58e-05, "batch_time_ms": 270.1127767562866, "timestamp": "2026-09-30T05:04:11.493160+00:00"}
+{"step": 90, "phase": "train", "loss": 0.005144101567566395, "learning_rate": 1.78e-05, "batch_time_ms": 259.8555564880371, "timestamp": "2026-09-30T05:04:29.874748+00:00"}
+{"step": 100, "phase": "train", "loss": 0.003225098829716444, "learning_rate": 1.9800000000000004e-05, "batch_time_ms": 251.72157287597656, "timestamp": "2026-09-30T05:04:48.400047+00:00"}
+{"step": 100, "phase": "validation", "val_loss": 0.0016489377012476325, "val_rmse": 0.04060711392413443, "timestamp": "2026-09-30T05:04:48.400228+00:00"}
+{"step": 110, "phase": "train", "loss": 0.002982977544888854, "learning_rate": 2.18e-05, "batch_time_ms": 252.92789936065674, "timestamp": "2026-09-30T05:05:06.759695+00:00"}
+{"step": 120, "phase": "train", "loss": 0.002443408826366067, "learning_rate": 2.38e-05, "batch_time_ms": 254.341721534729, "timestamp": "2026-09-30T05:05:23.814726+00:00"}
+{"step": 130, "phase": "train", "loss": 0.002024303888902068, "learning_rate": 2.58e-05, "batch_time_ms": 245.9261417388916, "timestamp": "2026-09-30T05:05:41.186902+00:00"}
+{"step": 140, "phase": "train", "loss": 0.0015718548092991114, "learning_rate": 2.7800000000000005e-05, "batch_time_ms": 251.40182971954346, "timestamp": "2026-09-30T05:05:59.004381+00:00"}
+{"step": 150, "phase": "train", "loss": 0.001595658133737743, "learning_rate": 2.98e-05, "batch_time_ms": 253.4895420074463, "timestamp": "2026-09-30T05:06:16.721732+00:00"}
+{"step": 160, "phase": "train", "loss": 0.0013716036919504404, "learning_rate": 3.18e-05, "batch_time_ms": 265.4898166656494, "timestamp": "2026-09-30T05:06:34.330595+00:00"}
+{"step": 170, "phase": "train", "loss": 0.0016441743355244398, "learning_rate": 3.38e-05, "batch_time_ms": 249.6983289718628, "timestamp": "2026-09-30T05:06:52.016838+00:00"}
+{"step": 180, "phase": "train", "loss": 0.0014118757098913193, "learning_rate": 3.58e-05, "batch_time_ms": 256.60057067871094, "timestamp": "2026-09-30T05:07:09.683539+00:00"}
+{"step": 190, "phase": "train", "loss": 0.0012628550175577402, "learning_rate": 3.7800000000000004e-05, "batch_time_ms": 275.282621383667, "timestamp": "2026-09-30T05:07:28.650919+00:00"}
+{"step": 200, "phase": "train", "loss": 0.0010117132915183902, "learning_rate": 3.9800000000000005e-05, "batch_time_ms": 288.67650032043457, "timestamp": "2026-09-30T05:07:47.428309+00:00"}
+{"step": 200, "phase": "validation", "val_loss": 0.0002510247577447444, "val_rmse": 0.015843760845984278, "timestamp": "2026-09-30T05:07:47.428398+00:00"}
+{"step": 10, "phase": "train", "loss": 0.9051609635353088, "learning_rate": 1.8e-06, "batch_time_ms": 150.4114866256714, "timestamp": "2026-09-30T05:38:52.350180+00:00"}
+{"step": 20, "phase": "train", "loss": 0.04815160855650902, "learning_rate": 3.8e-06, "batch_time_ms": 299.61817264556885, "timestamp": "2026-09-30T05:39:09.366201+00:00"}
+{"step": 30, "phase": "train", "loss": 0.038120437413454056, "learning_rate": 5.8e-06, "batch_time_ms": 303.89699935913086, "timestamp": "2026-09-30T05:39:29.407290+00:00"}
+{"step": 40, "phase": "train", "loss": 0.027753563597798347, "learning_rate": 7.8e-06, "batch_time_ms": 317.868447303772, "timestamp": "2026-09-30T05:39:49.278629+00:00"}
+{"step": 50, "phase": "train", "loss": 0.020126523450016975, "learning_rate": 9.800000000000001e-06, "batch_time_ms": 293.87362003326416, "timestamp": "2026-09-30T05:40:09.125501+00:00"}
+{"step": 60, "phase": "train", "loss": 0.01463137287646532, "learning_rate": 1.18e-05, "batch_time_ms": 276.8235921859741, "timestamp": "2026-09-30T05:40:29.447062+00:00"}
+{"step": 70, "phase": "train", "loss": 0.011914629489183426, "learning_rate": 1.3800000000000002e-05, "batch_time_ms": 318.5432195663452, "timestamp": "2026-09-30T05:40:50.068424+00:00"}
+{"step": 80, "phase": "train", "loss": 0.006235513836145401, "learning_rate": 1.58e-05, "batch_time_ms": 300.78251361846924, "timestamp": "2026-09-30T05:41:09.723095+00:00"}
+{"step": 90, "phase": "train", "loss": 0.00542196212336421, "learning_rate": 1.78e-05, "batch_time_ms": 306.3243865966797, "timestamp": "2026-09-30T05:41:30.277941+00:00"}
+{"step": 100, "phase": "train", "loss": 0.0036256955936551094, "learning_rate": 1.9800000000000004e-05, "batch_time_ms": 285.2585554122925, "timestamp": "2026-09-30T05:41:51.396669+00:00"}
+{"step": 100, "phase": "validation", "val_loss": 0.0019674981012940407, "val_rmse": 0.0443564888296407, "timestamp": "2026-09-30T05:41:51.396808+00:00"}
+{"step": 110, "phase": "train", "loss": 0.003132459009066224, "learning_rate": 2.18e-05, "batch_time_ms": 287.1726989746094, "timestamp": "2026-09-30T05:42:12.145724+00:00"}
+{"step": 120, "phase": "train", "loss": 0.0023227352648973465, "learning_rate": 2.38e-05, "batch_time_ms": 303.1371831893921, "timestamp": "2026-09-30T05:42:31.944348+00:00"}
+{"step": 130, "phase": "train", "loss": 0.0017628844361752272, "learning_rate": 2.58e-05, "batch_time_ms": 306.5941333770752, "timestamp": "2026-09-30T05:42:51.971731+00:00"}
+{"step": 140, "phase": "train", "loss": 0.0018366645090281963, "learning_rate": 2.7800000000000005e-05, "batch_time_ms": 293.69850158691406, "timestamp": "2026-09-30T05:43:12.217276+00:00"}
+{"step": 150, "phase": "train", "loss": 0.0016674058279022574, "learning_rate": 2.98e-05, "batch_time_ms": 308.47160816192627, "timestamp": "2026-09-30T05:43:31.818463+00:00"}
+{"step": 160, "phase": "train", "loss": 0.0014111697673797607, "learning_rate": 3.18e-05, "batch_time_ms": 313.1784915924072, "timestamp": "2026-09-30T05:43:52.219191+00:00"}
+{"step": 170, "phase": "train", "loss": 0.0013847717782482505, "learning_rate": 3.38e-05, "batch_time_ms": 273.2450246810913, "timestamp": "2026-09-30T05:44:11.936056+00:00"}
+{"step": 180, "phase": "train", "loss": 0.001407857984304428, "learning_rate": 3.58e-05, "batch_time_ms": 245.54786682128906, "timestamp": "2026-09-30T05:44:29.442880+00:00"}
+{"step": 190, "phase": "train", "loss": 0.0012979876482859254, "learning_rate": 3.7800000000000004e-05, "batch_time_ms": 263.05949687957764, "timestamp": "2026-09-30T05:44:46.477538+00:00"}
+{"step": 200, "phase": "train", "loss": 0.0010317841079086065, "learning_rate": 3.9800000000000005e-05, "batch_time_ms": 246.70612812042236, "timestamp": "2026-09-30T05:45:03.972635+00:00"}
+{"step": 200, "phase": "validation", "val_loss": 0.0002031164476647973, "val_rmse": 0.014251892774814064, "timestamp": "2026-09-30T05:45:03.972728+00:00"}
