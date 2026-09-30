@@ -19,8 +19,8 @@ data_processed/
 checkpoints/
 
 *.pt
-*.pth
-*.ckpt
+#*.pth
+#*.ckpt
 
 # ==========================
 # Python
@@ -51,6 +51,9 @@ __pycache__/
 
 .env
 .env.*
+
+venv_fixed/*
+venv_new/*
 
 venv/
 .venv/
@@ -90,8 +93,8 @@ docker-compose.override.yml
 # tests/
 
 # Astra_Vision - Data and outputs (remove to track generated artifacts)
-Astra_Vision/downloads/
-Astra_Vision/outputs/
+
+Astra_Vision/outputs/checkpoints/
 
 # ==========================
 # Root-level outputs and artifacts
@@ -117,8 +120,8 @@ Astra_Vision/__pycache__/
 # ==========================
 
 # Downloaded data (FITS files are already covered above)
-Astra_Vision/data/processed/
-Astra_Vision/data/raw/
+#Astra_Vision/data/processed/
+#Astra_Vision/data/raw/
 
 # Checkpoints and models (uncomment if not tracking)
 # Astra_Vision/outputs/checkpoints/*.pt

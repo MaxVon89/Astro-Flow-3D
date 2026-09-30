@@ -1,0 +1,20 @@
+{
+  "field": "CEERS",
+  "downloaded_at": "2026-09-29T19:18:34Z",
+  "n_bands_requested": 10,
+  "bands": [
+    "F115W",
+    "F150W",
+    "F200W",
+    "F277W",
+    "F356W",
+    "F444W",
+    "F770W",
+    "F1000W",
+    "F1130W",
+    "F1500W"
+  ],
+  "num_files": 0,
+  "files": [],
+  "band_counts": {}
+}
