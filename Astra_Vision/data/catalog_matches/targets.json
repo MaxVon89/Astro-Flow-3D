@@ -1,0 +1,169 @@
+{
+  "tiles": [
+    {
+      "tile_id": "tile_000000",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000000.npz",
+      "position": {"x": 0, "y": 0},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000001",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000001.npz",
+      "position": {"x": 256, "y": 0},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000002",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000002.npz",
+      "position": {"x": 512, "y": 0},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000003",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000003.npz",
+      "position": {"x": 768, "y": 0},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000004",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000004.npz",
+      "position": {"x": 0, "y": 256},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000005",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000005.npz",
+      "position": {"x": 256, "y": 256},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000006",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000006.npz",
+      "position": {"x": 512, "y": 256},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000007",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000007.npz",
+      "position": {"x": 768, "y": 256},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000008",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000008.npz",
+      "position": {"x": 0, "y": 512},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000009",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000009.npz",
+      "position": {"x": 256, "y": 512},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000010",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000010.npz",
+      "position": {"x": 512, "y": 512},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    },
+    {
+      "tile_id": "tile_000011",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000011.npz",
+      "position": {"x": 768, "y": 512},
+      "tile_size": 256,
+      "catalog_matches_count": 0,
+      "physical_parameters": {
+        "redshift": null,
+        "stellar_mass": null,
+        "sfr": null,
+        "morphology": null
+      }
+    }
+  ],
+  "catalog_parameters": [],
+  "center": {"ra": 180.0, "dec": 62.0},
+  "metadata": {
+    "field": "CEERS",
+    "program": "jw02733",
+    "description": "Targets for CEERS survey",
+    "match_radius_arcsec": 2.0,
+    "catalogs_queried": ["3dhst", "GLIMPSE", "GSC", "2MASS", "AllWISE", "SDSS", "VIKING", "PS1"]
+  }
+}

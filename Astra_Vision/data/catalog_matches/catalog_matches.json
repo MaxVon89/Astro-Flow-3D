@@ -1,0 +1,152 @@
+{
+  "ceers_field": {
+    "center_ra": 180.0,
+    "center_dec": 62.0,
+    "radius_arcmin": 30.0
+  },
+  "tiles": {
+    "tile_000000": {
+      "tile_id": "tile_000000",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000000.npz",
+      "position": {"x": 0, "y": 0},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000001": {
+      "tile_id": "tile_000001",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000001.npz",
+      "position": {"x": 256, "y": 0},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000002": {
+      "tile_id": "tile_000002",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000002.npz",
+      "position": {"x": 512, "y": 0},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000003": {
+      "tile_id": "tile_000003",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000003.npz",
+      "position": {"x": 768, "y": 0},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000004": {
+      "tile_id": "tile_000004",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000004.npz",
+      "position": {"x": 0, "y": 256},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000005": {
+      "tile_id": "tile_000005",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000005.npz",
+      "position": {"x": 256, "y": 256},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000006": {
+      "tile_id": "tile_000006",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000006.npz",
+      "position": {"x": 512, "y": 256},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000007": {
+      "tile_id": "tile_000007",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000007.npz",
+      "position": {"x": 768, "y": 256},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000008": {
+      "tile_id": "tile_000008",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000008.npz",
+      "position": {"x": 0, "y": 512},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000009": {
+      "tile_id": "tile_000009",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000009.npz",
+      "position": {"x": 256, "y": 512},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000010": {
+      "tile_id": "tile_000010",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000010.npz",
+      "position": {"x": 512, "y": 512},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    },
+    "tile_000011": {
+      "tile_id": "tile_000011",
+      "tile_set": "full_dataset_tiles",
+      "path": "/lp-dev/nvidia/projects/Astro-Flow-3D/Astra_Vision/outputs/full_dataset_tiles/tile_000011.npz",
+      "position": {"x": 768, "y": 512},
+      "tile_size": 256,
+      "center_ra": 180.0,
+      "center_dec": 62.0,
+      "catalog_matches": null,
+      "best_match": null
+    }
+  },
+  "catalog_info": {
+    "catalogs_queried": [],
+    "total_sources": 0,
+    "ra_column": null,
+    "dec_column": null
+  },
+  "metadata": {
+    "note": "No catalog matches available - MIRI data (jw01619) not found in CEERS catalogs (jw02733)",
+    "tile_dataset": "jwst_miri_full",
+    "program": "jw01619"
+  }
+}

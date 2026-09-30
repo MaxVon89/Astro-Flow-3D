@@ -1,191 +1,174 @@
 #!/usr/bin/env python3
 """
-Example usage of Astra-Vision for JWST multi-modal training.
+Example scripts for running inference with the trained model.
 
-This script demonstrates:
-1. Downloading JWST data from MAST
-2. Preprocessing multi-band data
-3. Training a multimodal ViT model
+These examples demonstrate various use cases:
+1. Single tile inference
+2. Batch inference
+3. Loading predictions from catalog
 """
 
-import os
-import sys
+import json
 from pathlib import Path
+from typing import Dict, List, Optional
 
-# Add Astra-Vision to path
-sys.path.insert(0, str(Path(__file__).parent))
+import numpy as np
+import torch
 
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent
+import sys
+sys.path.insert(0, str(PROJECT_ROOT))
 
-def example_download_data():
-    """Example: Download JWST CEERS data."""
-    print("=" * 60)
-    print("Example: Download JWST Data")
-    print("=" * 60)
-
-    from data.download import download_ceers_data
-
-    output_dir = "downloads/ceers"
-    result = download_ceers_data(output_dir, bands=["nircam", "miri"])
-
-    print(f"\nDownloaded {result['downloaded']} files")
-    print(f"Output: {output_dir}")
-    return result
+from models.vit_multimodal import MultimodalViT, build_multimodal_vit
 
 
-def example_preprocess_data():
-    """Example: Preprocess downloaded data."""
-    print("=" * 60)
-    print("Example: Preprocess Data")
-    print("=" * 60)
+def load_model(checkpoint_path: str, variant: str = "base") -> MultimodalViT:
+    """
+    Load a trained model from checkpoint.
 
-    from data.preprocess import (
-        load_multiband_fits,
-        preprocess_multiband,
-        create_tile_dataset,
-    )
+    Parameters
+    ----------
+    checkpoint_path : str
+        Path to the checkpoint file (.pt).
+    variant : str, default="base"
+        Model variant.
 
-    # This would use real downloaded data
-    print("For a real example, first run example_download_data()")
-
-    # Example with dummy data
-    import numpy as np
-
-    # Create dummy multi-band data
-    nircam_data = np.random.randn(6, 256, 256).astype(np.float32)
-    miri_data = np.random.randn(4, 256, 256).astype(np.float32)
-
-    # Stack into multi-band array
-    multi_band = np.concatenate([nircam_data, miri_data], axis=0)
-    print(f"Multi-band shape: {multi_band.shape}")
-
-    # Preprocess
-    band_fwhms = {
-        "nircam": 0.06,
-        "miri": 0.24,
-    }
-
-    processed = preprocess_multiband(
-        multi_band,
-        band_fwhms=band_fwhms,
-        target_fwhm=0.24,
-        normalize_method="asinh",
-    )
-
-    print(f"Processed shape: {processed.shape}")
-
-    # Create tiles
-    output_dir = Path("data/tiles")
-    output_dir.mkdir(exist_ok=True)
-
-    manifest = create_tile_dataset(
-        processed,
-        output_dir / "example",
-        tile_size=64,
-        stride=32,
-        band_names=["nircam", "miri"],
-    )
-
-    print(f"Created {len(list(output_dir.glob('tile_set_*')))} tile sets")
-    return processed
-
-
-def example_train_model():
-    """Example: Train multimodal ViT model."""
-    print("=" * 60)
-    print("Example: Train Model")
-    print("=" * 60)
-
-    import torch
-    from models.vit_multimodal import MultimodalViT
-    from training.mask import BandMasker, MaskedBandLoss, MaskedBandPretrainer
-
-    # Create model
+    Returns
+    -------
+    MultimodalViT
+        Loaded model ready for inference.
+    """
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = MultimodalViT(
+
+    checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+
+    # Build model
+    model = build_multimodal_vit(
+        variant=variant,
         nircam_bands=6,
         miri_bands=4,
-        img_size=256,
-        patch_size=16,
-        embed_dim=192,
-        depth=4,
-        num_heads=6,
-    ).to(device)
-
-    print(f"Model parameters: {sum(p.numel() for p in model.parameters())}")
-
-    # Create dummy data loader
-    from torch.utils.data import DataLoader, TensorDataset
-
-    n_samples = 10
-    nircam_data = torch.randn(n_samples, 6, 256, 256)
-    miri_data = torch.randn(n_samples, 4, 256, 256)
-
-    dataset = TensorDataset(nircam_data, miri_data)
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
-
-    # Pretrain with masked bands
-    pretrainer = MaskedBandPretrainer(
-        model,
-        mask_prob=0.5,
-        learning_rate=1e-4,
-        device=device,
+        use_cross_attention=True,
     )
 
-    # Train for a few steps
-    print("\nStarting pretraining...")
-    for epoch in range(2):
-        metrics = pretrainer.train_epoch(dataloader)
-        print(f"Epoch {epoch}: {metrics}")
+    # Load state dict
+    state_dict = checkpoint.get("model_state_dict", checkpoint)
+    model.load_state_dict(state_dict)
 
-    print("\nPretraining complete!")
+    model = model.to(device)
+    model.eval()
+
+    print(f"Loaded model from {checkpoint_path}")
     return model
 
 
-def example_full_pipeline():
-    """Run a minimal example of the full pipeline."""
-    print("=" * 60)
-    print("Example: Full Pipeline")
-    print("=" * 60)
+def load_tile(tile_path: str) -> np.ndarray:
+    """
+    Load a single tile from an npz file.
 
-    import torch
-    from models.vit_multimodal import MultimodalViT
+    Parameters
+    ----------
+    tile_path : str
+        Path to the .npz file.
 
-    # Create model
+    Returns
+    -------
+    np.ndarray
+        Loaded tile data (n_bands, height, width).
+    """
+    with np.load(tile_path) as data:
+        available_bands = list(data.keys())
+        tile = np.stack([data[b] for b in available_bands], axis=0)
+    return tile
+
+
+def preprocess_tile(tile: np.ndarray) -> tuple:
+    """
+    Preprocess tile for model inference.
+
+    Parameters
+    ----------
+    tile : np.ndarray
+        Input tile (n_bands, height, width).
+
+    Returns
+    -------
+    tuple
+        NIRCam and MIRI tensors ready for model input.
+    """
+    n_bands, height, width = tile.shape
+    tile_tensor = torch.from_numpy(tile).float()
+
+    if n_bands == 1:
+        # Single band (MIRI) - duplicate to create 6 NIRCam + 4 MIRI channels
+        nircam = tile_tensor.expand(6, -1, -1)  # [6, H, W]
+        miri = tile_tensor.expand(4, -1, -1)    # [4, H, W]
+    else:
+        # Multi-band data
+        nircam = tile_tensor[:6, :, :]
+        miri = tile_tensor[6:10, :, :]
+
+    # Add batch dimension
+    nircam = nircam.unsqueeze(0)  # [1, 6, H, W]
+    miri = miri.unsqueeze(0)      # [1, 4, H, W]
+
+    return nircam, miri
+
+
+def predict(model: MultimodalViT, tile: np.ndarray) -> np.ndarray:
+    """
+    Run inference on a single tile.
+
+    Parameters
+    ----------
+    model : MultimodalViT
+        Trained model.
+    tile : np.ndarray
+        Input tile (n_bands, height, width).
+
+    Returns
+    -------
+    np.ndarray
+        Predicted parameters (num_classes,).
+    """
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = MultimodalViT(
-        nircam_bands=6,
-        miri_bands=4,
-        img_size=256,
-        patch_size=16,
-        embed_dim=192,
-        depth=4,
-        num_heads=6,
-    ).to(device)
 
-    # Create sample data
-    nircam = torch.randn(2, 6, 256, 256).to(device)
-    miri = torch.randn(2, 4, 256, 256).to(device)
+    nircam, miri = preprocess_tile(tile)
+    nircam = nircam.to(device)
+    miri = miri.to(device)
 
-    # Forward pass
-    output = model(nircam, miri)
+    with torch.no_grad():
+        outputs = model(nircam, miri)
 
-    print(f"Input NIRCam: {nircam.shape}")
-    print(f"Input MIRI: {miri.shape}")
-    print(f"Output: {output.shape}")
-    print("\nPipeline example complete!")
+    predictions = outputs.cpu().numpy().squeeze(0)
+    return predictions
 
+
+# =============================================================================
+# Example usage
+# =============================================================================
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Astra-Vision examples")
-    parser.add_argument("--example", choices=["download", "preprocess", "train", "pipeline"], default="pipeline")
-    args = parser.parse_args()
+    # Example 1: Single tile inference
+    checkpoint_path = "Astra_Vision/outputs/full_run_20h/checkpoints/best_model.pt"
+    tile_path = "Astra_Vision/outputs/full_dataset_tiles/tile_000000.npz"
 
-    if args.example == "download":
-        example_download_data()
-    elif args.example == "preprocess":
-        example_preprocess_data()
-    elif args.example == "train":
-        example_train_model()
-    elif args.example == "pipeline":
-        example_full_pipeline()
+    # Load model
+    model = load_model(checkpoint_path, variant="base")
+
+    # Load and predict on a single tile
+    tile = load_tile(tile_path)
+    print(f"Loaded tile shape: {tile.shape}")
+
+    predictions = predict(model, tile)
+    print(f"Predictions shape: {predictions.shape}")
+    print(f"Predictions: {predictions}")
+
+    # Example 2: Load predictions from catalog
+    catalog_path = "Astra_Vision/outputs/predictions.json"
+    if Path(catalog_path).exists():
+        with open(catalog_path) as f:
+            catalog = json.load(f)
+        print(f"\nCatalog contains {len(catalog)} tile predictions")
+        for tile_name, data in list(catalog.items())[:3]:
+            print(f"  {tile_name}: {data['predictions'][:5]}...")
