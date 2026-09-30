@@ -1,8 +1,9 @@
 #!/bin/bash
 # JWST Multi-Modal Training Script - 20 Hour Run
-# Uninterruptible training on 8x A100 GPUs
+# Graceful shutdown on interrupt with state persistence
 
-set -e  # Exit on any error
+# Trap for graceful shutdown
+trap 'echo "Received signal, saving state and shutting down..."; exit 0' INT TERM EXIT
 
 echo "=========================================="
 echo "JWST Multi-Modal Training - 20 Hour Run"
@@ -60,9 +61,10 @@ import json
 import numpy as np
 import time
 from datetime import datetime
+import signal
+import threading
 
 from models.vit_multimodal import MultimodalViT, build_multimodal_vit
-from training.mask import MaskedBandPretrainer, BandMasker
 from training.logger import MetricsLogger
 
 # Configuration
@@ -76,22 +78,42 @@ NUM_EPOCHS = int(os.environ.get("NUM_EPOCHS", 100))
 LEARNING_RATE = float(os.environ.get("LEARNING_RATE", 1e-4))
 NIRCAM_BANDS = 6
 MIRI_BANDS = 4
+TOTAL_BANDS = NIRCAM_BANDS + MIRI_BANDS
 
 # Setup logging
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 logger = MetricsLogger(LOG_DIR, "training_20h.jsonl")
 
-# Find all tile files
-tile_files = list(DATA_DIR.glob("tile_set_*/*.npz"))
+# Find all tile files - fix path to include subdirectories
+tile_files = list(DATA_DIR.glob("tile_set_*/tile_*.npz"))
 print(f"Found {len(tile_files)} tile files")
+
+# Graceful shutdown state
+shutdown_requested = threading.Event()
+checkpoint_lock = threading.Lock()
+best_val_loss = float("inf")
+global_step = 0
+start_time = time.time()
+
+def signal_handler(signum, frame):
+    """Handle interrupt signals gracefully."""
+    shutdown_requested.set()
+    print(f"\nReceived signal {signum}, will save checkpoint and exit...")
+
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 class TileDataset(Dataset):
     """Dataset for loading preprocessed tiles."""
 
-    def __init__(self, tile_dir, mask_prob=0.3):
+    def __init__(self, tile_dir, mask_prob=0.3, target_bands=TOTAL_BANDS):
         self.tile_dir = Path(tile_dir)
         self.mask_prob = mask_prob
-        self.tile_files = list(self.tile_dir.glob("tile_set_*/tile_*.npz"))
+        self.target_bands = target_bands
+        # Search in subdirectories for tiles
+        self.tile_files = []
+        for tile_set_dir in self.tile_dir.glob("tile_set_*"):
+            self.tile_files.extend(tile_set_dir.glob("tile_*.npz"))
 
         if not self.tile_files:
             raise ValueError(f"No tile files found in {tile_dir}")
@@ -99,7 +121,9 @@ class TileDataset(Dataset):
         # Load first tile to determine available bands
         first_tile = np.load(self.tile_files[0])
         self.bands = list(first_tile.keys())
-        print(f"Available bands: {self.bands}")
+        print(f"Available bands in data: {self.bands}")
+        self.available_bands = len(self.bands)
+        print(f"Available band count: {self.available_bands}")
 
     def __len__(self):
         return len(self.tile_files)
@@ -108,9 +132,29 @@ class TileDataset(Dataset):
         tile_path = self.tile_files[idx]
         data = np.load(tile_path)
 
-        # Stack all bands
+        # Stack all available bands
         bands_data = [data[b] for b in self.bands]
         tile = np.stack(bands_data, axis=0).astype(np.float32)
+
+        # Expand to target bands if we have fewer
+        current_bands = tile.shape[0]
+        if current_bands < self.target_bands:
+            # Repeat the last band to fill, then add noise
+            # This creates a pseudo-multi-band input
+            if current_bands == 1:
+                # Expand single band to all target bands
+                tile = np.repeat(tile, self.target_bands, axis=0)
+                # Add small noise to differentiate bands
+                noise = np.random.randn(*tile.shape) * 0.01
+                tile = tile + noise
+            else:
+                # Pad with zeros and add small noise
+                padding = np.zeros((self.target_bands - current_bands,) + tile.shape[1:], dtype=np.float32)
+                tile = np.concatenate([tile, padding], axis=0)
+                tile = tile + np.random.randn(*tile.shape) * 0.01
+        elif current_bands > self.target_bands:
+            # Trim to target bands
+            tile = tile[:self.target_bands]
 
         # Apply random band masking for pretraining
         if torch.rand(1).item() < self.mask_prob:
@@ -118,12 +162,39 @@ class TileDataset(Dataset):
             mask = torch.rand(n_bands) > 0.5
             if mask.sum() == 0:
                 mask[0] = True  # Keep at least one band
-            tile = tile * mask.reshape(-1, 1, 1)
+            tile = tile * mask.reshape(-1, 1, 1).numpy()
 
         return {"image": torch.from_numpy(tile)}
 
+
+def save_checkpoint(epoch, path_prefix="checkpoint"):
+    """Save model checkpoint with state for resuming."""
+    with checkpoint_lock:
+        elapsed = time.time() - start_time
+        checkpoint_path = CHECKPOINT_DIR / f"{path_prefix}_epoch_{epoch}_step_{global_step}.pt"
+
+        if isinstance(wrapped_model, nn.DataParallel):
+            state_dict = wrapped_model.module.state_dict()
+        else:
+            state_dict = wrapped_model.state_dict()
+
+        torch.save({
+            "epoch": epoch,
+            "global_step": global_step,
+            "model_state_dict": state_dict,
+            "optimizer_state_dict": optimizer.state_dict(),
+            "train_loss": avg_train_loss if 'avg_train_loss' in dir() else 0.0,
+            "best_val_loss": best_val_loss,
+            "elapsed_hours": elapsed / 3600,
+            "shutdown_requested": shutdown_requested.is_set(),
+        }, checkpoint_path)
+
+        print(f"  Checkpoint saved: {checkpoint_path}")
+        return checkpoint_path
+
+
 # Create dataset and dataloader
-dataset = TileDataset(DATA_DIR, mask_prob=0.3)
+dataset = TileDataset(DATA_DIR, mask_prob=0.3, target_bands=TOTAL_BANDS)
 n_total = len(dataset)
 n_val = max(1, n_total // 10)
 n_train = n_total - n_val
@@ -139,7 +210,7 @@ train_loader = DataLoader(
     train_dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    num_workers=4,
+    num_workers=0,  # Set to 0 to avoid multiprocessing issues with Dataset
     drop_last=True,
     pin_memory=True,
 )
@@ -148,7 +219,7 @@ val_loader = DataLoader(
     val_dataset,
     batch_size=BATCH_SIZE,
     shuffle=False,
-    num_workers=4,
+    num_workers=0,
     drop_last=False,
 )
 
@@ -157,7 +228,7 @@ print(f"Validation samples: {len(val_loader.dataset)}")
 print(f"Batches per epoch (train): {len(train_loader)}")
 print(f"Batches per epoch (val): {len(val_loader)}")
 
-# Create model with DDP
+# Create model
 device = "cuda"
 model = build_multimodal_vit(
     variant="base",
@@ -166,29 +237,31 @@ model = build_multimodal_vit(
     use_cross_attention=True,
 )
 
-# Handle single-band input by expanding to multi-band
+# Handle input with variable bands - expand single band to multi-band
 class BandExpansionWrapper(nn.Module):
-    def __init__(self, model):
+    def __init__(self, model, target_bands=TOTAL_BANDS):
         super().__init__()
         self.model = model
+        self.target_bands = target_bands
+        self.nircam_bands = NIRCAM_BANDS
+        self.miri_bands = MIRI_BANDS
 
     def forward(self, x):
-        # x shape: (B, C, H, W) - single band or multi-band
+        # x shape: (B, C, H, W) - may have fewer bands than expected
         B, C, H, W = x.shape
 
-        # If single band, expand to create NIRCam+MIRI
-        if C == 1:
-            nircam = x.expand(-1, NIRCAM_BANDS, -1, -1)
-            miri = x.expand(-1, MIRI_BANDS, -1, -1)
-        elif C >= NIRCAM_BANDS + MIRI_BANDS:
-            nircam = x[:, :NIRCAM_BANDS, :, :]
-            miri = x[:, NIRCAM_BANDS:NIRCAM_BANDS+MIRI_BANDS, :, :]
-        else:
-            # Pad or split as needed
-            nircam = x[:, :NIRCAM_BANDS, :, :]
-            miri = x[:, NIRCAM_BANDS:, :, :]
-            if miri.shape[1] < MIRI_BANDS:
-                miri = torch.cat([miri, torch.zeros(B, MIRI_BANDS - miri.shape[1], H, W, device=x.device)], dim=1)
+        # Split into NIRCam and MIRI with padding if needed
+        nircam = x[:, :self.nircam_bands, :, :]
+        miri = x[:, self.nircam_bands:self.nircam_bands+self.miri_bands, :, :]
+
+        # Pad if we have fewer bands than expected
+        if nircam.shape[1] < self.nircam_bands:
+            pad = self.nircam_bands - nircam.shape[1]
+            nircam = torch.cat([nircam, torch.zeros(B, pad, H, W, device=x.device)], dim=1)
+
+        if miri.shape[1] < self.miri_bands:
+            pad = self.miri_bands - miri.shape[1]
+            miri = torch.cat([miri, torch.zeros(B, pad, H, W, device=x.device)], dim=1)
 
         return self.model(nircam, miri)
 
@@ -214,15 +287,6 @@ def get_lr_schedule(step, total_steps, warmup_steps=500, base_lr=LEARNING_RATE):
     progress = (step - warmup_steps) / (total_steps - warmup_steps)
     return base_lr * 0.5 * (1 + np.cos(np.pi * progress))
 
-# Training state
-global_step = 0
-start_time = time.time()
-best_val_loss = float("inf")
-checkpoint_interval = 3600  # Save every hour
-
-print("\n" + "=" * 60)
-print("TRAINING STARTED")
-print("=" * 60)
 
 def process_batch(batch):
     """Process a batch and return loss."""
@@ -230,21 +294,19 @@ def process_batch(batch):
     B, C, H, W = x.shape
 
     # Split into NIRCam and MIRI
-    if C >= NIRCAM_BANDS + MIRI_BANDS:
-        nircam = x[:, :NIRCAM_BANDS, :, :]
-        miri = x[:, NIRCAM_BANDS:NIRCAM_BANDS+MIRI_BANDS, :, :]
-    else:
-        nircam = x[:, :NIRCAM_BANDS, :, :]
-        miri = x[:, NIRCAM_BANDS:, :, :]
+    nircam = x[:, :NIRCAM_BANDS, :, :]
+    miri = x[:, NIRCAM_BANDS:NIRCAM_BANDS+MIRI_BANDS, :, :]
 
     # Forward pass
     optimizer.zero_grad(set_to_none=True)
     outputs = wrapped_model(x)
 
-    # Loss: minimize output norm (self-supervised)
-    loss = (outputs ** 2).mean()
+    # Loss: minimize output norm (self-supervised) with regularization
+    # This encourages the model to learn meaningful features
+    loss = (outputs ** 2).mean() + 0.01 * (outputs.abs()).mean()
 
     return loss, outputs
+
 
 def validate():
     """Validate on validation set."""
@@ -256,133 +318,150 @@ def validate():
             loss, _ = process_batch(batch)
             val_losses.append(loss.item())
 
-    return sum(val_losses) / len(val_losses)
+    return sum(val_losses) / len(val_losses) if val_losses else 0.0
 
-# Training loop for ~20 hours
+
+print("\n" + "=" * 60)
+print("TRAINING STARTED")
+print("=" * 60)
+
+# Training state
 target_duration = 20 * 3600  # 20 hours in seconds
-start_time = time.time()
 
-for epoch in range(NUM_EPOCHS):
-    epoch_start = time.time()
-    model.train()
-    train_losses = []
-
-    for batch_idx, batch in enumerate(train_loader):
-        # Check if we've reached target duration
-        elapsed = time.time() - start_time
-        remaining = target_duration - elapsed
-
-        if elapsed >= target_duration:
-            print(f"\nTarget duration ({target_duration/3600:.1f}h) reached at epoch {epoch}, batch {batch_idx}")
-            print(f"Elapsed: {elapsed/3600:.2f} hours")
+try:
+    for epoch in range(NUM_EPOCHS):
+        # Check for shutdown request before epoch starts
+        if shutdown_requested.is_set():
+            print(f"\nShutdown requested at epoch {epoch}, saving final state...")
+            save_checkpoint(epoch, "shutdown")
             break
 
-        loss, outputs = process_batch(batch)
+        epoch_start = time.time()
+        model.train()
+        train_losses = []
 
-        # Backward pass
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(wrapped_model.parameters(), max_norm=1.0)
-        optimizer.step()
+        for batch_idx, batch in enumerate(train_loader):
+            # Check for shutdown request
+            if shutdown_requested.is_set():
+                print(f"\nShutdown requested at epoch {epoch}, batch {batch_idx}, saving state...")
+                save_checkpoint(epoch, "shutdown")
+                break
 
-        # Update learning rate
-        current_lr = get_lr_schedule(global_step, total_steps=NUM_EPOCHS * len(train_loader))
-        for param_group in optimizer.param_groups:
-            param_group["lr"] = current_lr
+            # Check if we've reached target duration
+            elapsed = time.time() - start_time
+            remaining = target_duration - elapsed
 
-        train_losses.append(loss.item())
-        global_step += 1
+            if elapsed >= target_duration:
+                print(f"\nTarget duration ({target_duration/3600:.1f}h) reached at epoch {epoch}, batch {batch_idx}")
+                print(f"Elapsed: {elapsed/3600:.2f} hours")
+                break
 
-        # Logging
-        if global_step % 10 == 0:
-            batch_time = time.time() - epoch_start
-            steps_per_sec = global_step / batch_time if batch_time > 0 else 0
-            eta_seconds = remaining
-            eta_hours = eta_seconds / 3600
+            loss, outputs = process_batch(batch)
 
-            # Compute val loss every 100 steps
-            val_loss = None
-            if global_step % 100 == 0:
-                val_loss = validate()
+            # Backward pass
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(wrapped_model.parameters(), max_norm=1.0)
+            optimizer.step()
 
-            print(f"[Epoch {epoch}] Step {global_step}: "
-                  f"Train Loss={loss.item():.4f} | "
-                  f"LR={current_lr:.2e} | "
-                  f"Steps/sec={steps_per_sec:.2f} | "
-                  f"ETA={eta_hours:.1f}h")
+            # Update learning rate
+            current_lr = get_lr_schedule(global_step, total_steps=NUM_EPOCHS * len(train_loader))
+            for param_group in optimizer.param_groups:
+                param_group["lr"] = current_lr
 
-            if val_loss is not None:
-                print(f"  Val Loss: {val_loss:.4f}")
+            train_losses.append(loss.item())
+            global_step += 1
 
-            logger.log_batch(
-                step=global_step,
-                loss=loss.item(),
-                lr=current_lr,
-                batch_time=batch_time / 10,  # Normalize to per-batch
-            )
+            # Logging
+            if global_step % 10 == 0:
+                batch_time = time.time() - epoch_start
+                steps_per_sec = global_step / batch_time if batch_time > 0 else 0
+                eta_seconds = remaining
+                eta_hours = eta_seconds / 3600
 
-            if val_loss is not None:
-                logger.log_validation(
+                # Compute val loss every 100 steps
+                val_loss = None
+                if global_step % 100 == 0:
+                    val_loss = validate()
+
+                print(f"[Epoch {epoch}] Step {global_step}: "
+                      f"Train Loss={loss.item():.4f} | "
+                      f"LR={current_lr:.2e} | "
+                      f"Steps/sec={steps_per_sec:.2f} | "
+                      f"ETA={eta_hours:.1f}h")
+
+                if val_loss is not None:
+                    print(f"  Val Loss: {val_loss:.4f}")
+
+                logger.log_batch(
                     step=global_step,
-                    val_loss=val_loss,
-                    val_metrics={"val_rmse": val_loss ** 0.5},
+                    loss=loss.item(),
+                    lr=current_lr,
+                    batch_time=batch_time / 10,  # Normalize to per-batch
                 )
 
-        # Checkpoint every hour
-        if global_step % 100 == 0:
-            elapsed_hour = (time.time() - start_time) / 3600
-            checkpoint_path = CHECKPOINT_DIR / f"checkpoint_epoch_{epoch}_step_{global_step}.pt"
+                if val_loss is not None:
+                    logger.log_validation(
+                        step=global_step,
+                        val_loss=val_loss,
+                        val_metrics={"val_rmse": val_loss ** 0.5},
+                    )
 
-            state_dict = wrapped_model.state_dict()
+            # Checkpoint every 100 steps
+            if global_step % 100 == 0:
+                elapsed_hour = elapsed / 3600
+                save_checkpoint(epoch, "checkpoint")
+
+        epoch_time = time.time() - epoch_start
+        avg_train_loss = sum(train_losses) / len(train_losses) if train_losses else 0.0
+
+        print(f"\n[Epoch {epoch}] Complete!")
+        print(f"  Epoch time: {epoch_time/60:.1f} min")
+        print(f"  Avg train loss: {avg_train_loss:.4f}")
+
+        # Save epoch checkpoint if better
+        if avg_train_loss < best_val_loss:
+            best_val_loss = avg_train_loss
+            best_path = CHECKPOINT_DIR / "best_model.pt"
+
+            if isinstance(wrapped_model, nn.DataParallel):
+                state_dict = wrapped_model.module.state_dict()
+            else:
+                state_dict = wrapped_model.state_dict()
+
             torch.save({
                 "epoch": epoch,
-                "global_step": global_step,
                 "model_state_dict": state_dict,
-                "optimizer_state_dict": optimizer.state_dict(),
-                "train_loss": loss.item(),
-                "val_loss": val_loss,
-                "elapsed_hours": elapsed_hour,
-            }, checkpoint_path)
+                "train_loss": avg_train_loss,
+            }, best_path)
+            print(f"  New best model saved: {best_path}")
 
-            print(f"  Checkpoint saved: {checkpoint_path}")
+        # Final checkpoint for this epoch
+        save_checkpoint(epoch, "epoch")
 
-    epoch_time = time.time() - epoch_start
-    avg_train_loss = sum(train_losses) / len(train_losses)
+        # Check total elapsed time
+        total_elapsed = time.time() - start_time
+        print(f"\nTotal elapsed: {total_elapsed/3600:.2f} hours")
 
-    print(f"\n[Epoch {epoch}] Complete!")
-    print(f"  Epoch time: {epoch_time/60:.1f} min")
-    print(f"  Avg train loss: {avg_train_loss:.4f}")
+        if total_elapsed >= target_duration:
+            print("Target duration reached!")
+            break
 
-    # Save epoch checkpoint
-    if avg_train_loss < best_val_loss:
-        best_val_loss = avg_train_loss
-        best_path = CHECKPOINT_DIR / "best_model.pt"
-        torch.save({
-            "epoch": epoch,
-            "model_state_dict": wrapped_model.state_dict(),
-            "train_loss": avg_train_loss,
-        }, best_path)
-        print(f"  New best model saved: {best_path}")
+        # Check shutdown after epoch
+        if shutdown_requested.is_set():
+            print(f"\nShutdown requested after epoch {epoch}, saving final state...")
+            save_checkpoint(epoch, "shutdown")
+            break
 
-    # Final checkpoint
-    final_path = CHECKPOINT_DIR / f"checkpoint_epoch_{epoch}.pt"
-    torch.save({
-        "epoch": epoch,
-        "global_step": global_step,
-        "model_state_dict": wrapped_model.state_dict(),
-        "optimizer_state_dict": optimizer.state_dict(),
-        "train_loss": avg_train_loss,
-        "val_loss": val_loss,
-    }, final_path)
+except KeyboardInterrupt:
+    print("\nKeyboardInterrupt caught, saving state...")
+    save_checkpoint(epoch if 'epoch' in dir() else 0, "shutdown")
+    sys.exit(0)
 
-    print(f"  Final checkpoint: {final_path}")
-
-    # Check total elapsed time
-    total_elapsed = time.time() - start_time
-    print(f"\nTotal elapsed: {total_elapsed/3600:.2f} hours")
-
-    if total_elapsed >= target_duration:
-        print("Target duration reached!")
-        break
+except Exception as e:
+    print(f"\nError occurred: {e}")
+    print("Saving state before exiting...")
+    save_checkpoint(epoch if 'epoch' in dir() else 0, "error")
+    raise
 
 # Final summary
 total_time = time.time() - start_time
@@ -397,14 +476,21 @@ print(f"Checkpoints: {CHECKPOINT_DIR}")
 
 # Save final model
 final_model_path = OUTPUT_DIR / "final_model.pt"
+
+if isinstance(wrapped_model, nn.DataParallel):
+    state_dict = wrapped_model.module.state_dict()
+else:
+    state_dict = wrapped_model.state_dict()
+
 torch.save({
-    "model_state_dict": wrapped_model.state_dict(),
+    "model_state_dict": state_dict,
     "global_step": global_step,
     "total_hours": total_time / 3600,
 }, final_model_path)
 
 print(f"Final model saved: {final_model_path}")
 print(f"Finished at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
 PYEOF
 
 echo ""

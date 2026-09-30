@@ -414,6 +414,10 @@ class MultimodalViT(nn.Module):
         torch.Tensor
             Predicted parameters (B, num_classes).
         """
+        # Ensure inputs are float32 (DataLoader might pass float64)
+        nircam = nircam.float()
+        miri = miri.float()
+
         B = nircam.shape[0]
 
         # Embed patches
